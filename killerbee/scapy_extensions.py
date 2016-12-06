@@ -423,11 +423,16 @@ def kbdecrypt(pkt, key = None, verbose = None):
     pkt = pkt.copy()   #this is hack to fix the below line
     pkt.nwk_seclevel=5 #the issue appears to be when this is set
 
+    # For whatever reason the MIC and FCS gets counted toward the encrypted payload a few lines down
+    # Remove the FCS and reconstruct the packet so the proper MIC is used and this function returns the proper payload
+    pkt = pkt.__class__(str(pkt)[:-2])
+
     #mic = struct.unpack(">I", f['mic'])
-    mic = pkt.mic
+    # mic = pkt.mic
 
     f = pkt.getlayer(ZigbeeSecurityHeader).fields
     encrypted = f['data']
+    mic = f['mic']
 
     sec_ctrl_byte = str(pkt.getlayer(ZigbeeSecurityHeader))[0]
 

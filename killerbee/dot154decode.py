@@ -265,19 +265,20 @@ class Dot154PacketParser:
             elif daddr_mask == DOT154_FCF_ADDR_SHORT:
                 pktchop[3] = packet[offset:offset+2]
                 offset+=2
-    
-            # Examine the Intra-PAN flag
-            if (fcf & DOT154_FCF_INTRA_PAN) == 0:
-                pktchop[4] = packet[offset:offset+2]
-                offset+=2
-    
+
+
             # Examine the source addressing mode
             saddr_mask = (fcf & DOT154_FCF_SADDR_MASK) >> 14
-            if daddr_mask == DOT154_FCF_ADDR_EXT:
+            if saddr_mask == DOT154_FCF_ADDR_EXT:
                 pktchop[5] = packet[offset:offset+8]
                 offset+=8
-            elif daddr_mask == DOT154_FCF_ADDR_SHORT:
+            elif saddr_mask == DOT154_FCF_ADDR_SHORT:
                 pktchop[5] = packet[offset:offset+2]
+                offset+=2
+    
+            # Examine the Intra-PAN flag
+            if (fcf & DOT154_FCF_INTRA_PAN) == 0 and not saddr_mask == DOT154_FCF_ADDR_NONE:
+                pktchop[4] = packet[offset:offset+2]
                 offset+=2
 
         # Append remaining payload
